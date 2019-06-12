@@ -26,9 +26,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    static List<Game> games;
-    BoxAdapter adapter;
-    ListView listView;
+    private List<Game> games;
+    private BoxAdapter adapter;
+    private ListView listView;
 
     /**
      * Called when the activity is first created.
@@ -49,16 +49,16 @@ public class MainActivity extends AppCompatActivity {
         //String url = "https://store.playstation.com/ru-ru/grid/STORE-MSF75508-PRICEDROPSCHI/1";
         final String url = "https://store.playstation.com/valkyrie-api/ru/RU/999/container/STORE-MSF75508-GAMESPECIALOFF?size=30&bucket=games&start=0";
 
-        LoadTask loadTask = new LoadTask(this, adapter);
+        LoadTask loadTask = new LoadTask(this, adapter, games);
         loadTask.execute(url);
 
-        
+
 //        new Thread(new Runnable() {
 //            public void run() {
 //                String jsonResult;
 //                try {
 //                    jsonResult = processGetRequest(url);
-//                    doAllLogicWithJsonData(jsonResult);
+//                    makeGameParames(jsonResult);
 //                } catch (JSONException | IOException e) {
 //                    e.printStackTrace();
 //                }
@@ -75,72 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public static String processGetRequest(String url) throws IOException {
-        DefaultHttpClient httpClient = new DefaultHttpClient(new BasicHttpParams());
-        HttpGet request = new HttpGet(url);
-// Depends on your web service
-        request.setHeader("Content-type", "application/json");
 
-        InputStream inputStream = null;
-        String result;
-        try {
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
 
-            inputStream = entity.getContent();
-            // json is UTF-8 by default
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
-            StringBuilder sb = new StringBuilder();
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            result = sb.toString();
-        } finally {
-            try {
-                if (inputStream != null) inputStream.close();
-            } catch (Exception squish) {
-            }
-        }
-        return result;
-    }
-
-    public static void doAllLogicWithJsonData(String jsonResult) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonResult);
-        if (!jsonObject.has("included")) {
-            System.out.println("error");
-            return;
-        }
-        JSONArray included = jsonObject.getJSONArray("included");
-        for (int i = 0; i < included.length(); i++) {
-            JSONObject game = included.getJSONObject(i).getJSONObject("attributes");
-
-            String name;
-            String discountPrice;
-            String realPrice;
-
-            if (game.has("skus")) {
-                name = game.getString("name");
-                int skusIndex;
-                if (game.getJSONArray("skus").length() == 2){
-                    skusIndex = 1;
-                } else {
-                    skusIndex = 0;
-                }
-                JSONObject object = game.
-                        getJSONArray("skus").getJSONObject(skusIndex).
-                        getJSONObject("prices").getJSONObject("plus-user");
-                if (object.optJSONObject("strikethrough-price") != null) {
-                    discountPrice = object.getJSONObject("actual-price").
-                            getString("display");
-                    realPrice = object.getJSONObject("strikethrough-price").
-                            getString("display");
-                } else {
-                    continue;
-                }
-                games.add(new Game(name, realPrice, discountPrice));
-            }
-        }
-    }
 }

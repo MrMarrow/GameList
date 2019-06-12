@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -46,6 +47,12 @@ public class BoxAdapter extends BaseAdapter {
         }
 
         Game game = getGame(position);
+
+
+        ImageView logo = (ImageView) view.findViewById(R.id.pictureLogo);
+        logo.setImageDrawable(context.getResources().getDrawable(R.drawable.house1));
+        IconLoadTask iconLoadTask = new IconLoadTask(logo, game.getIconUrl());
+        iconLoadTask.execute();
 
         ((TextView) view.findViewById(R.id.name)).setText(game.getName());
         ((TextView) view.findViewById(R.id.realPrice)).setText(game.getRealPrice());
